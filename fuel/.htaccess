@@ -1,33 +1,135 @@
 Options +FollowSymLinks
 RewriteEngine On
 
-# Rewrite rules for the FUsion Energy Lexicon (FUEL), including content negotiation
+# ------------------------------------------------------------
+# FUEL content negotiation for GitHub Pages structure:
+#   latest:   /fuel.(ttl|owl|jsonld|nt|trig|n3)
+#   dev:      /dev/fuel.(...)
+#   releases: /releases/<version>/fuel.(...)
+#
+# HTML docs (Widoco default):
+#   latest:   /docs/widoco/
+#   dev:      /dev/docs/widoco/
+#   releases: /releases/<version>/docs/widoco/
+# ------------------------------------------------------------
 
-# Default to Turtle if no Accept header is provided
-RewriteCond %{HTTP_ACCEPT} !(rdf\+xml|json-ld|n-triples|turtle|trig|n3|html) [NC]
-RewriteRule ^$ https://raw.githubusercontent.com/ukaea/fuel/main/fuel.ttl [R=303,L]
+
+# =========================
+# 1) ROOT (latest/current)
+# =========================
 
 # RDF/XML
 RewriteCond %{HTTP_ACCEPT} application/rdf\+xml [NC,OR]
 RewriteCond %{HTTP_ACCEPT} application/xml [NC,OR]
 RewriteCond %{HTTP_ACCEPT} text/xml [NC]
-RewriteRule ^$ https://raw.githubusercontent.com/ukaea/fuel/main/fuel.owl [R=303,L]
+RewriteRule ^$ fuel.owl [R=303,L]
 
 # JSON-LD
 RewriteCond %{HTTP_ACCEPT} application/ld\+json [NC]
-RewriteRule ^$ https://raw.githubusercontent.com/ukaea/fuel/main/fuel.jsonld [R=303,L]
+RewriteRule ^$ fuel.jsonld [R=303,L]
 
 # N-Triples
 RewriteCond %{HTTP_ACCEPT} application/n-triples [NC]
-RewriteRule ^$ https://raw.githubusercontent.com/ukaea/fuel/main/fuel.nt [R=303,L]
+RewriteRule ^$ fuel.nt [R=303,L]
+
+# TriG
+RewriteCond %{HTTP_ACCEPT} application/trig [NC]
+RewriteRule ^$ fuel.trig [R=303,L]
+
+# N3
+RewriteCond %{HTTP_ACCEPT} text/n3 [NC]
+RewriteRule ^$ fuel.n3 [R=303,L]
 
 # Turtle
 RewriteCond %{HTTP_ACCEPT} text/turtle [NC]
-RewriteRule ^$ https://raw.githubusercontent.com/ukaea/fuel/main/fuel.ttl [R=303,L]
+RewriteRule ^$ fuel.ttl [R=303,L]
 
-# HTML (documentation on GitHub Pages)
+# HTML (Widoco docs)
 RewriteCond %{HTTP_ACCEPT} text/html [NC]
-RewriteRule ^$ https://ukaea.github.io/fuel/ [R=303,L]
+RewriteRule ^$ docs/widoco/ [R=303,L]
 
-# Fallback: default to HTML
-RewriteRule ^$ https://ukaea.github.io/fuel/ [R=303,L]
+# Default (no matching Accept): Turtle
+RewriteRule ^$ fuel.ttl [R=303,L]
+
+
+# =========================
+# 2) DEV
+# =========================
+# Negotiates on:
+#   /dev   and  /dev/
+
+# RDF/XML
+RewriteCond %{HTTP_ACCEPT} application/rdf\+xml [NC,OR]
+RewriteCond %{HTTP_ACCEPT} application/xml [NC,OR]
+RewriteCond %{HTTP_ACCEPT} text/xml [NC]
+RewriteRule ^dev/?$ dev/fuel.owl [R=303,L]
+
+# JSON-LD
+RewriteCond %{HTTP_ACCEPT} application/ld\+json [NC]
+RewriteRule ^dev/?$ dev/fuel.jsonld [R=303,L]
+
+# N-Triples
+RewriteCond %{HTTP_ACCEPT} application/n-triples [NC]
+RewriteRule ^dev/?$ dev/fuel.nt [R=303,L]
+
+# TriG
+RewriteCond %{HTTP_ACCEPT} application/trig [NC]
+RewriteRule ^dev/?$ dev/fuel.trig [R=303,L]
+
+# N3
+RewriteCond %{HTTP_ACCEPT} text/n3 [NC]
+RewriteRule ^dev/?$ dev/fuel.n3 [R=303,L]
+
+# Turtle
+RewriteCond %{HTTP_ACCEPT} text/turtle [NC]
+RewriteRule ^dev/?$ dev/fuel.ttl [R=303,L]
+
+# HTML (Widoco docs, dev)
+RewriteCond %{HTTP_ACCEPT} text/html [NC]
+RewriteRule ^dev/?$ dev/docs/widoco/ [R=303,L]
+
+# Default: Turtle
+RewriteRule ^dev/?$ dev/fuel.ttl [R=303,L]
+
+
+# =========================
+# 3) RELEASES (versioned)
+# =========================
+# Negotiates on:
+#   /releases/0.0.1   and  /releases/0.0.1/
+#
+# Version pattern supports: 0.0.1, 1.2, 2, etc.
+# If you use v0.0.1 or -rc1, change the capture group to: ([A-Za-z0-9._-]+)
+
+# RDF/XML
+RewriteCond %{HTTP_ACCEPT} application/rdf\+xml [NC,OR]
+RewriteCond %{HTTP_ACCEPT} application/xml [NC,OR]
+RewriteCond %{HTTP_ACCEPT} text/xml [NC]
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/fuel.owl [R=303,L]
+
+# JSON-LD
+RewriteCond %{HTTP_ACCEPT} application/ld\+json [NC]
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/fuel.jsonld [R=303,L]
+
+# N-Triples
+RewriteCond %{HTTP_ACCEPT} application/n-triples [NC]
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/fuel.nt [R=303,L]
+
+# TriG
+RewriteCond %{HTTP_ACCEPT} application/trig [NC]
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/fuel.trig [R=303,L]
+
+# N3
+RewriteCond %{HTTP_ACCEPT} text/n3 [NC]
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/fuel.n3 [R=303,L]
+
+# Turtle
+RewriteCond %{HTTP_ACCEPT} text/turtle [NC]
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/fuel.ttl [R=303,L]
+
+# HTML (Widoco docs, versioned)
+RewriteCond %{HTTP_ACCEPT} text/html [NC]
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/docs/widoco/ [R=303,L]
+
+# Default: Turtle
+RewriteRule ^releases/([0-9]+(?:\.[0-9]+)*)/?$ releases/$1/fuel.ttl [R=303,L]
